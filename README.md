@@ -201,17 +201,17 @@ let view = UIView(frame: CGRect.zero)
 
 ```swift
 class MyViewController: UIViewController {
-    // class stuff here
+    // MyViewController 相关方法
 }
 
 // MARK: - UITableViewDataSource
 extension MyViewController: UITableViewDataSource {
-    // table view data source methods
+    // UITableViewDataSource 相关方法
 }
 
 // MARK: - UIScrollViewDelegate
 extension MyViewController: UIScrollViewDelegate {
-    // scroll view delegate methods
+    // UIScrollViewDelegate 相关方法
 }
 ```
 
@@ -219,7 +219,7 @@ extension MyViewController: UIScrollViewDelegate {
 
 ```swift
 class MyViewController: UIViewController, UITableViewDataSource, UIScrollViewDelegate {
-    // all methods
+    // 所有方法
 }
 ```
 
@@ -274,9 +274,9 @@ override func tableView(_ tableView: UITableView, numberOfRowsInSection section:
 
 ```swift
 if user.isHappy {
-    // Do something
+    // ...
 } else {
-    // Do something else
+    // ...
 }
 ```
 
@@ -285,10 +285,10 @@ if user.isHappy {
 ```swift
 if user.isHappy
 {
-    // Do something
+    // ...
 }
 else {
-    // Do something else
+    // ...
 }
 ```
 - 方法之间应该保留一行空格来使得代码结构组织更清晰。在方法中，可以用空行来隔开功能块，但是当一个方法中存在太多功能块时，那就意味着你可能需要重构这个大方法为多个小方法了。
@@ -435,7 +435,7 @@ final class Box<T> {
 
 ```swift
 func reticulateSplines(spline: [Double]) -> Bool {
-    // reticulate code goes here
+    // ...
 }
 ```
 
@@ -449,7 +449,7 @@ func reticulateSplines(
     comment: String)
     -> Bool 
 {
-    // reticulate code goes here
+    // ...
 }
 ```
 
@@ -577,7 +577,7 @@ self.textContainer?.textLabel?.setNeedsDisplay()
 
 ```swift
 if let textContainer = self.textContainer {
-    // do many things with textContainer
+    // ...
 }
 ```
 
@@ -593,7 +593,7 @@ var volume: Double?
 
 // later on...
 if let subview = subview, let volume = volume {
-    // do something with unwrapped subview and volume
+    // ...
 }
 ```
 
@@ -605,7 +605,7 @@ var volume: Double?
 
 if let unwrappedSubview = optionalSubview {
     if let realVolume = volume {
-        // do something with unwrappedSubview and realVolume
+        // ...
     }
 }
 ```
