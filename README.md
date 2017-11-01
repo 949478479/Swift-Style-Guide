@@ -21,6 +21,7 @@
     - [使用 Self](#use-of-self)
     - [计算属性](#computed-properties)
     - [Final](#final)
+- [函数声明](#function-declarations)
 
 <a id="naming"></a>
 ## 命名
@@ -407,6 +408,33 @@ final class Box<T> {
     }
 }
 ```
+
+<a id="function-declarations"></a>
+## 函数声明
+
+将较短的函数声明写为一行，包括左大括号。
+
+```swift
+func reticulateSplines(spline: [Double]) -> Bool {
+    // reticulate code goes here
+}
+```
+
+对于较长的函数声明，在合适的地方换行，并在新起的一行加缩进。
+
+```swift
+func reticulateSplines(
+    spline: [Double],
+    adjustmentFactor: Double,
+    translateConstant: Int, 
+    comment: String)
+    -> Bool 
+{
+    // reticulate code goes here
+}
+```
+
+
 
 
 
