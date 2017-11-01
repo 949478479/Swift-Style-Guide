@@ -19,6 +19,8 @@
     - [使用哪个](#which-one-to-use)
     - [定义示例](#example-definition)
     - [使用 Self](#use-of-self)
+    - [计算属性](#computed-properties)
+    - [Final](#final)
 
 <a id="naming"></a>
 ## 命名
@@ -369,13 +371,42 @@ extension Circle: CustomStringConvertible {
 - 在构造器中，为了区别传入的参数和属性。
 - 在 `@escaping` 闭包中访问属性，编译器要求用 `self`。
 
+<a id="computed-properties"></a>
+### 计算属性
 
+为了简洁，如果计算属性是只读的，那么就省略 get。只有当同时写了 set 语句时，才写 get 语句。
 
+**推荐**
 
+```swift
+var diameter: Double {
+    return radius * 2
+}
+```
 
+**不推荐**
 
+```swift
+var diameter: Double {
+    get {
+        return radius * 2
+    }
+}
+```
 
+<a id="final"></a>
+## Final
 
+如果类不会被继承，那么将它设为 `final` 的。
+
+```swift
+final class Box<T> {
+    let value: T
+    init(_ value: T) {
+        self.value = value
+    }
+}
+```
 
 
 
