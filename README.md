@@ -6,14 +6,16 @@
     - [枚举](#enumeration)
     - [协议](#protocol)
     - [代理](#delegate)
-    - [使用上下文类型推断](#use-type-inferred-context)
     - [泛型](#generics)
     - [类名前缀](#class-prefixes)
+    - [使用上下文类型推断](#use-type-inferred-context)
 - [代码组织](#code-organization)
     - [协议实现](#protocol-conformance)
     - [无用代码](#unused-code)
     - [最小引用](#minimal-imports)
-    
+- [空格](#spacing)
+- [注释](#comments)
+
 <a id="naming"></a>
 ## 命名
 
@@ -105,29 +107,6 @@ func didSelectName(namePicker: NamePickerViewController, name: String)
 func namePickerShouldReload() -> Bool
 ```
 
-<a id="use-type-inferred-context"></a>
-### 使用上下文类型推断
-
-使用编译器的上下文类型推断来编写简洁清晰的代码。
-
-**推荐**
-
-```swift
-let selector = #selector(viewDidLoad)
-view.backgroundColor = .red
-let toView = context.view(forKey: .to)
-let view = UIView(frame: .zero)
-```
-
-**不推荐**
-
-```swift
-let selector = #selector(ViewController.viewDidLoad)
-view.backgroundColor = UIColor.red
-let toView = context.view(forKey: UITransitionContextViewKey.to)
-let view = UIView(frame: CGRect.zero)
-```
-
 <a id="generics"></a>
 ### 泛型
 
@@ -159,10 +138,33 @@ import SomeModule
 let myClass = MyModule.UsefulClass()
 ```
 
+<a id="use-type-inferred-context"></a>
+### 使用上下文类型推断
+
+使用编译器的上下文类型推断来编写简洁清晰的代码。
+
+**推荐**
+
+```swift
+let selector = #selector(viewDidLoad)
+view.backgroundColor = .red
+let toView = context.view(forKey: .to)
+let view = UIView(frame: .zero)
+```
+
+**不推荐**
+
+```swift
+let selector = #selector(ViewController.viewDidLoad)
+view.backgroundColor = UIColor.red
+let toView = context.view(forKey: UITransitionContextViewKey.to)
+let view = UIView(frame: CGRect.zero)
+```
+
 <a id="code-organization"></a>
 ## 代码组织
 
-使用 // MARK: - 根据「代码功能类别」、「protocol/delegate 方法实现」等依据对代码进行分块组织。代码的组织顺序从整体上尽量遵循我们的认知顺序。
+使用 `// MARK: -` 根据「代码功能类别」、「protocol/delegate 方法实现」等依据对代码进行分块组织。代码的组织顺序从整体上尽量遵循我们的认知顺序。
 
 <a id="protocol-conformance"></a>
 ### 协议实现
@@ -235,6 +237,65 @@ override func tableView(_ tableView: UITableView, numberOfRowsInSection section:
 ### 最小引用
 
 只 import 你需要的模块。比如，如果引用 `Foundation` 以及足够，就不要再引用 `UIKit` 了。
+
+<a id="spacing"></a>
+## 空格
+
+- 使用 Tab 而非空格。
+- 方法的大括号以及其他的大括号（`if`/`else`/`switch`/`while` 等）总是与关联的程序语句在同一行打开，而在新起的一行结束。
+
+**推荐**
+
+```swift
+if user.isHappy {
+    // Do something
+} else {
+    // Do something else
+}
+```
+
+**不推荐**
+
+```swift
+if user.isHappy
+{
+    // Do something
+}
+else {
+    // Do something else
+}
+```
+- 方法之间应该保留一行空格来使得代码结构组织更清晰。在方法中，可以用空行来隔开功能块，但是当一个方法中存在太多功能块时，那就意味着你可能需要重构这个大方法为多个小方法了。
+- 冒号的左边总是不空格，右边空 1 格。除了在三元运算符 `? :` 和空字典 `[:]` 中。
+
+**推荐**
+
+```swift
+class TestDatabase: Database {
+    var data: [String: CGFloat] = ["A": 1.2, "B": 3.2]
+}
+```
+
+**不推荐**
+
+```swift
+class TestDatabase : Database {
+    var data :[String:CGFloat] = ["A" : 1.2, "B":3.2]
+}
+```
+
+<a id="comments"></a>
+## 注释
+
+只在需要的时候添加注释来解释一段代码的意义，注释要么保持与对应的代码一起更新，要不然就删掉。
+
+避免使用在代码中使用块注释，代码应该是自解释的。除非你的注释是用来生成文档的。
+
+
+
+
+
+
 
 
 
