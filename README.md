@@ -22,6 +22,7 @@
     - [计算属性](#computed-properties)
     - [Final](#final)
 - [函数声明](#function-declarations)
+- [闭包表达式](#closure-expressions)
 
 <a id="naming"></a>
 ## 命名
@@ -433,6 +434,64 @@ func reticulateSplines(
     // reticulate code goes here
 }
 ```
+
+<a id="closure-expressions"></a>
+## 闭包表达式
+
+如果参数列表只有最后一个参数是闭包类型，则尽可能使用尾闭包语法。在所有情况下给闭包参数一个描述性强的命名。
+
+**推荐**
+
+```swift
+UIView.animate(withDuration: 1.0) {
+    self.myView.alpha = 0
+}
+
+UIView.animate(withDuration: 1.0, animations: {
+    self.myView.alpha = 0
+}, completion: { finished in
+    self.myView.removeFromSuperview()
+})
+```
+
+**不推荐**
+
+```swift
+UIView.animate(withDuration: 1.0, animations: {
+    self.myView.alpha = 0
+})
+
+UIView.animate(withDuration: 1.0, animations: {
+    self.myView.alpha = 0
+}) { f in
+    self.myView.removeFromSuperview()
+}
+```
+
+对于上下文清晰的单表达式闭包，使用隐式的返回值：
+
+```swift
+attendeeList.sort { a, b in
+    a > b
+}
+```
+
+在链式方法调用中使用尾闭包语法时，需要确保上下文清晰可读。
+
+```swift
+let value = numbers.map { $0 * 2 }.filter { $0 % 3 == 0 }.index(of: 90)
+
+let value = numbers
+    .map { $0 * 2 }
+    .filter { $0 % 3 == 0 }
+    .index(of: 90)
+```
+
+
+
+
+
+
 
 
 
