@@ -8,7 +8,7 @@
     - [代理](#delegate)
     - [泛型](#generics)
     - [类名前缀](#class-prefixes)
-    - [使用上下文类型推断](#use-type-inferred-context)
+    - [上下文类型推导](#type-inferred-context)
 - [代码组织](#code-organization)
     - [协议实现](#protocol-conformance)
     - [无用代码](#unused-code)
@@ -27,7 +27,21 @@
     - [常量](#constants)
     - [静态方法和静态类型属性](#static-methods-and-variable-type-properties)
     - [Optional](#optionals)
-    
+    - [结构体构造器](#struct-constructor)
+    - [懒加载](#lazy-initialization)
+    - [类型推导](#type-inferred)
+    - [类型标注](#type-annotation)
+- [语法糖](#syntactic-sugar)
+- [函数和方法](#functions-vs-methods)
+- [内存管理](#memory-management)
+    - [延伸对象生命周期](#extending-lifetime)
+- [访问控制](#access-control)
+- [控制流](#control-flow)
+- [黄金路径](#golden-path)
+    - [失败的 Guard](#failing-guards)
+- [分号](#semicolons)
+- [圆括号](#parentheses)
+
 <a id="naming"></a>
 ## 命名
 
@@ -150,10 +164,10 @@ import SomeModule
 let myClass = MyModule.UsefulClass()
 ```
 
-<a id="use-type-inferred-context"></a>
-### 使用上下文类型推断
+<a id="type-inferred-context"></a>
+### 上下文类型推导
 
-使用编译器的上下文类型推断来编写简洁清晰的代码。
+依靠编译器的上下文类型推导来编写简洁清晰的代码。
 
 **推荐**
 
@@ -596,22 +610,366 @@ if let unwrappedSubview = optionalSubview {
 }
 ```
 
+<a id="struct-constructor"></a>
+### 结构体构造器
 
-
-
-
-
-
-
-
-
+使用 Swift 原生的结构体构造器。
 
 **推荐**
 
 ```swift
+let bounds = CGRect(x: 40, y: 20, width: 120, height: 80)
+let centerPoint = CGPoint(x: 96, y: 42)
 ```
 
 **不推荐**
 
 ```swift
+let bounds = CGRectMake(40, 20, 120, 80)
+let centerPoint = CGPointMake(96, 42)
+```
+
+<a id="lazy-initialization"></a>
+### 懒加载
+
+使用懒加载机制来在对象的生命周期中实现更细粒度的内存和逻辑控制。尤其是 `UIViewController`，在加载其 views 时，尽量采用懒加载方式。可以使用 `{ }()` 这种闭包的方式或者私有工厂的方式来实现懒加载。
+
+```swift
+lazy var locationManager: CLLocationManager = self.makeLocationManager()
+
+private func makeLocationManager() -> CLLocationManager {
+    let manager = CLLocationManager()
+    manager.desiredAccuracy = kCLLocationAccuracyBest
+    manager.delegate = self
+    manager.requestAlwaysAuthorization()
+    return manager
+}
+```
+
+**注意**
+
+- 这里不需要 `[unowned self]`，因为这里没有引起循环引用。
+- CLLocationManager 有一个副作用，会唤起向用户申请权限的 UI 界面，所以在这里使用懒加载机制可以达到更细粒度的内存和逻辑控制。
+
+<a id="type-inferred"></a>
+### 类型推导
+
+为了代码紧凑，推荐尽量使用 Swift 的类型推导。不过，对于 `CGFloat`、`Int16` 这种，推荐尽量指定明确的类型。
+
+**推荐**
+
+```swift
+let message = "Click the button"
+let currentBounds = computeViewBounds()
+var names = ["Mic", "Sam", "Christine"]
+let maximumWidth: CGFloat = 106.5
+```
+
+**不推荐**
+
+```swift
+let message: String = "Click the button"
+let currentBounds: CGRect = computeViewBounds()
+let names = [String]()
+```
+
+<a id="type-annotation"></a>
+### 类型标注
+
+对于空的数组和字典，使用类型标注。
+
+**推荐**
+
+```swift
+var names: [String] = []
+var lookup: [String: Int] = [:]
+```
+
+**不推荐**
+
+```swift
+var names = [String]()
+var lookup = [String: Int]()
+```
+
+<a id="syntactic-sugar"></a>
+## 语法糖
+
+推荐使用简短的声明。
+
+**推荐**
+
+```swift
+var deviceModels: [String]
+var employees: [Int: String]
+var faxNumber: Int?
+```
+
+**不推荐**
+
+```swift
+var deviceModels: Array<String>
+var employees: Dictionary<Int, String>
+var faxNumber: Optional<Int>
+```
+
+<a id="functions-vs-methods"></a>
+## 函数和方法
+
+自由函数不属于任何一个类或类型，应该尽量少用。可以的话，尽量使用方法而非自由函数。这样可读性更好，也更易查找。
+
+最适合使用自由函数的场景是这个函数功能与任何特定的类或类型都没有关联关系。
+
+**推荐**
+
+```swift
+let sorted = items.mergeSorted()  
+rocket.launch()  
+```
+
+**不推荐**
+
+```swift
+let sorted = mergeSort(items) 
+launch(&rocket)
+```
+
+**自由函数示例**
+
+```swift
+let tuples = zip(a, b)  
+let value = max(x, y, z)
+```
+
+<a id="memory-management"></a>
+## 内存管理
+
+在编码中应该避免循环引用。对于会产生循环应用的地方，使用 `weak` 和 `unowned` 来解决。此外，还可以使用值类型（`struct`、`enum`）来避免循环引用。
+
+<a id="extending-lifetime"></a>
+### 延伸对象生命周期
+
+可以通过 `[weak self]`、`guard let strongSelf = self else { return }` 来延伸对象的生命周期。
+
+相对于 `[unowned self]`，这里更推荐使用 `[weak self]`。`[unowned self]` 在其作用的对象被释放后，会造成野指针，而 `[weak self]` 则会将对应的引用置为 nil。
+
+相对于 Optional 拆包，更推荐明确的延长生命周期。
+
+**推荐**
+
+```swift
+resource.request().onComplete { [weak self] response in
+    guard let strongSelf = self else {
+        return
+    }
+    let model = strongSelf.updateModel(response)
+    strongSelf.updateUI(model)
+}
+```
+
+**不推荐**
+
+```swift
+// 如果闭包调用之前或调用过程中 self 被释放则会野指针崩溃
+resource.request().onComplete { [unowned self] response in
+    let model = self.updateModel(response)
+    self.updateUI(model)
+}
+```
+
+**不推荐**
+
+```swift
+// self 可能会在 updateModel 和 updateUI 方法执行之间被释放
+resource.request().onComplete { [weak self] response in
+    let model = self?.updateModel(response)
+    self?.updateUI(model)
+}
+```
+
+<a id="access-control"></a>
+## 访问控制
+
+开发的访问级别不需要把 `public` 写出来，但对于 `private`，则最好写出。
+
+除了 `static`、`@IBAction`、`@IBOutlet`，一般情况下，总是把访问控制修饰符 `private` 放在属性修饰符的第一位。
+
+**推荐**
+
+```swift
+private let message = "Great Scott!"
+
+class TimeMachine {  
+    fileprivate dynamic lazy var fluxCapacitor = FluxCapacitor()
+}
+```
+
+**不推荐**
+
+```swift
+fileprivate let message = "Great Scott!"
+
+class TimeMachine {  
+    lazy dynamic fileprivate var fluxCapacitor = FluxCapacitor()
+}
+```
+
+<a id="control-flow"></a>
+## 控制流
+
+相对于 `while-condition-increment`，更推荐使用 `for-in`。
+
+**推荐**
+
+```swift
+for _ in 0..<3 {
+    print("Hello three times")
+}
+
+for (index, person) in attendeeList.enumerated() {
+    print("\(person) is at position #\(index)")
+}
+
+for index in stride(from: 0, to: items.count, by: 2) {
+    print(index)
+}
+
+for index in (0...3).reversed() {
+    print(index)
+}
+```
+
+**不推荐**
+
+```swift
+var i = 0
+while i < 3 {
+    print("Hello three times")
+    i += 1
+}
+
+var i = 0
+while i < attendeeList.count {
+    let person = attendeeList[i]
+    print("\(person) is at position #\(i)")
+    i += 1
+}
+```
+
+<a id="golden-path"></a>
+## 黄金路径
+
+当使用条件语句编写逻辑时，不要嵌套多个 `if` 语句。
+
+**推荐**
+
+```swift
+func computeFFT(context: Context?, inputData: InputData?) throws -> Frequencies {
+    guard let context = context else {
+        throw FFTError.noContext
+    }
+    guard let inputData = inputData else {
+        throw FFTError.noInputData
+    }
+    return frequencies
+}
+```
+
+**不推荐**
+
+```swift
+func computeFFT(context: Context?, inputData: InputData?) throws -> Frequencies {
+    if let context = context {
+        if let inputData = inputData {
+            return frequencies
+        } else {
+            throw FFTError.noInputData
+        }
+    } else {
+        throw FFTError.noContext
+    }
+}
+```
+
+使用 `guard` 或 `if let` 拆包多个 Optional 时，推荐最小化嵌套。
+
+**推荐**
+
+```swift
+guard
+    let number1 = number1,
+    let number2 = number2,
+    let number3 = number3
+    else {
+        fatalError("impossible")
+}
+```
+
+**不推荐**
+
+```swift
+if let number1 = number1 {
+    if let number2 = number2 {
+        if let number3 = number3 {
+            // ...
+        } else {
+            fatalError("impossible")
+        }
+    } else {
+        fatalError("impossible")
+    }
+} else {
+    fatalError("impossible")
+}
+```
+
+<a id="failing-guards"></a>
+### 失败的 Guard
+
+`guard` 语句一般都需要以某种方式退出执行。一般来说使用 `return`、`throw`、`break`、`continue`、`fatalError()` 即可。应该避免在退出时写大段的代码，如果确实需要在不同的退出点上编写退出清理逻辑，可以考虑使用 `defer` 来避免重复。
+
+<a id="semicolons"></a>
+## 分号
+
+Swift 不需要在一行代码结束时使用分号。只有当你想把多行代码放在一行写时，才需要用分号隔开它们，但是一般不推荐这样做。
+
+**推荐**
+
+```swift
+let swift = "not a scripting language"
+```
+
+**不推荐**
+
+```swift
+let swift = "not a scripting language";
+```
+
+<a id="parentheses"></a>
+## 圆括号
+
+条件判断语句外的圆括号不是必须的，推荐省略它们。
+
+**推荐**
+
+```swift
+if name == "Hello" {
+    print("World")
+}
+```
+
+**不推荐**
+
+```swift
+if (name == "Hello") {
+    print("World")
+}
+```
+
+对于复杂的表达式，使用圆括号可以使代码更加一目了然。
+
+**推荐**
+
+```swift
+let playerMark = (player == current ? "X" : "O")
 ```
