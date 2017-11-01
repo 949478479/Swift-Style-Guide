@@ -15,6 +15,7 @@
     - [最小引用](#minimal-imports)
 - [空格](#spacing)
 - [注释](#comments)
+- [类和结构体](#classes-and-structures)
 
 <a id="naming"></a>
 ## 命名
@@ -291,6 +292,72 @@ class TestDatabase : Database {
 
 避免使用在代码中使用块注释，代码应该是自解释的。除非你的注释是用来生成文档的。
 
+<a id="classes-and-structures"></a>
+## 类和结构体
+
+### 使用哪个
+
+结构体是值类型，使用结构体来表示那些没有区别性的事物。一个包含 [a, b, c] 元素的数组和另一个包含 [a, b, c] 元素的数组是完全可替换的，你用第一个数组和用第二个数组没有任何区别，因为它们代表着同样的东西。所以数组是结构体。
+
+类是引用类型，使用类来表示那些有区别性的事物。你用类来表示「人」这个概念，是因为两个「人」的实例是两个不一样的事情。两个「人」的实例就算拥有相同的姓名、生日，也不代表他们是一样的。但是「人」的生日数据应该用结构体表示，因为一个 1950-03-03 和另一个 1950-03-03 是一回事，日期这个概念没有区别性。
+
+有时候，一些概念本应是用结构体，但是由于历史原因被实现为类了，比如 NSDate、NSSet。
+
+### 类定义示例
+
+以下是一个设计较好的类定义示例：
+
+```swift
+class Circle: Shape {
+    var x: Int, y: Int
+    var radius: Double
+    var diameter: Double {
+        get {
+            return radius * 2
+        }
+        set {
+            radius = newValue / 2
+        }
+    }
+    
+    init(x: Int, y: Int, radius: Double) {
+        self.x = x
+        self.y = y
+        self.radius = radius
+    }
+    
+    convenience init(x: Int, y: Int, diameter: Double) {
+        self.init(x: x, y: y, radius: diameter / 2)
+    }
+    
+    override func area() -> Double {
+        return Double.pi * radius * radius
+    }
+}
+
+extension Circle: CustomStringConvertible {
+    var description: String {
+        return "center = \(centerString) area = \(area())"
+    }
+    private var centerString: String {
+        return "(\(x),\(y))"
+    }
+}
+```
+
+上面的例子展示了下面的设计准则：
+
+- 属性、变量、常量和参数等在声明时，`:` 号后有空格，而前面没有空格，比如 `x: Int`, 和 `Circle: Shape`。
+
+- 定义多个变量或数据结构时，如果它们关系紧密，可以定义在同一行。
+
+- 缩进 getter，setter 和属性观察器的定义。
+
+- 不要添加诸如 `internal` 这样的默认修饰符，也不要在重写一个方法时添加访问修饰符。
+
+- 使用 `extension` 来组织方法。
+
+- 使用 `private extension` 隐藏非公开的细节，例如上述代码示例中 `centerString` 属性的实现。
 
 
 
