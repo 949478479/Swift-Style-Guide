@@ -11,6 +11,8 @@
     - [类名前缀](#class-prefixes)
 - [代码组织](#code-organization)
     - [协议实现](#protocol-conformance)
+    - [无用代码](#unused-code)
+    - [最小引用](#minimal-imports)
     
 <a id="naming"></a>
 ## 命名
@@ -171,17 +173,17 @@ let myClass = MyModule.UsefulClass()
 
 ```swift
 class MyViewController: UIViewController {
-  // class stuff here
+    // class stuff here
 }
 
 // MARK: - UITableViewDataSource
 extension MyViewController: UITableViewDataSource {
-  // table view data source methods
+    // table view data source methods
 }
 
 // MARK: - UIScrollViewDelegate
 extension MyViewController: UIScrollViewDelegate {
-  // scroll view delegate methods
+    // scroll view delegate methods
 }
 ```
 
@@ -189,10 +191,66 @@ extension MyViewController: UIScrollViewDelegate {
 
 ```swift
 class MyViewController: UIViewController, UITableViewDataSource, UIScrollViewDelegate {
-  // all methods
+    // all methods
 }
 ```
 
 由于编译器不允许在派生类重复声明对协议的实现，所以并不要求总是复制基类的 `extension` 组。尤其当这个派生类是一个终端类，只有少量的方法需要重载时。何时保留 extension 组，这个应该由作者自己决定。
 
 对于 UIKit 的 ViewControllers，可以考虑将 Lifecycle、Custom Accessors、IBAction 放在独立的 `extension` 中实现。
+
+<a id="unused-code"></a>
+### 无用代码
+
+无用的代码，包括 Xcode 代码模板提供的默认代码，以及占位的评论，都应该被删掉。除非你是在写教程需要读者来阅读你注释的代码。
+
+**推荐**
+
+```swift
+override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return Database.contacts.count
+}
+```
+
+**不推荐**
+
+```swift
+override func didReceiveMemoryWarning() {
+    super.didReceiveMemoryWarning()
+    // Dispose of any resources that can be recreated.
+}
+
+override func numberOfSections(in tableView: UITableView) -> Int {
+    // #warning Incomplete implementation, return the number of sections
+    return 1
+}
+
+override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    // #warning Incomplete implementation, return the number of rows
+    return Database.contacts.count
+}
+```
+
+<a id="minimal-imports"></a>
+### 最小引用
+
+只 import 你需要的模块。比如，如果引用 `Foundation` 以及足够，就不要再引用 `UIKit` 了。
+
+
+
+
+
+
+
+
+
+
+**推荐**
+
+```swift
+```
+
+**不推荐**
+
+```swift
+```
