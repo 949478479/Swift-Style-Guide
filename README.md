@@ -23,7 +23,11 @@
     - [Final](#final)
 - [函数声明](#function-declarations)
 - [闭包表达式](#closure-expressions)
-
+- [类型](#types)
+    - [常量](#constants)
+    - [静态方法和静态类型属性](#static-methods-and-variable-type-properties)
+    - [Optional](#optionals)
+    
 <a id="naming"></a>
 ## 命名
 
@@ -487,6 +491,110 @@ let value = numbers
     .index(of: 90)
 ```
 
+<a id="types"></a>
+## 类型
+
+如果可以的话，总是优先使用 Swift 提供的原生类型。Swift 提供了对 Objective-C 的桥接，所以你可以使用所有需要的方法。
+
+**推荐**
+
+```swift
+let width = 120.0                                    // Double
+let widthString = (width as NSNumber).stringValue    // String
+```
+
+**不推荐**
+
+```swift
+let width: NSNumber = 120.0                          // NSNumber
+let widthString: NSString = width.stringValue        // NSString
+```
+
+<a id="constants"></a>
+### 常量
+
+用 `let` 关键字来定义常量，使用 `var` 关键字来定义变量。如果变量不需要被修改，则应该总是选择使用 `let`。
+
+一个建议是，总是使用 `let` 除非编译器报警告诉你需要使用 `var`。
+
+使用类型而非实例属性来定义常量。最好也别用全局常量，这样能更好区分常量和实例属性。
+
+**推荐**
+
+```swift
+enum Math {
+    static let e = 2.718281828459045235360287
+    static let root2 = 1.41421356237309504880168872
+}
+
+let hypotenuse = side * Math.root2
+```
+
+使用 case-less 枚举的优势在于它不会被意外初始化，而仅仅作为一个命名空间来用。
+
+**不推荐**
+
+```swift
+let e = 2.718281828459045235360287 // 污染全局命名空间
+let root2 = 1.41421356237309504880168872
+
+let hypotenuse = side * root2 // root2 含义不够明确
+```
+
+<a id="static-methods-and-variable-type-properties"></a>
+### 静态方法和静态类型属性
+
+静态方法和静态类型属性与全局方法和全局变量类似，应该谨慎使用。
+
+<a id="optionals"></a>
+### Optional
+
+当一个变量或函数返回值可以为 nil 时，用 `?` 将其声明为 Optional 的。
+
+对于在使用前一定会被初始化的实例变量，用 `!` 将其声明为隐式解包类型。
+
+在访问一个 Optional 值时，如果该值只被访问一次，或者之后需要连续访问多个 Optional 值，请使用链式 Optional 语法。
+
+```swift
+self.textContainer?.textLabel?.setNeedsDisplay()
+```
+
+对于需要将 Optional 值解开一次，多处使用的情况，使用 Optional 绑定更为方便。
+
+```swift
+if let textContainer = self.textContainer {
+    // do many things with textContainer
+}
+```
+
+不要使用类似 `optionalString`、`maybeView` 这种名字来命名 Optional 的变量或属性，因为这层意思以及明显的体现在他们的类型声明上了。
+
+对于 Optional 绑定，推荐直接用同样的名字，不要用 `unwrappedView`、`actualLabel` 这种命名。
+
+**推荐**
+
+```swift
+var subview: UIView?
+var volume: Double?
+
+// later on...
+if let subview = subview, let volume = volume {
+    // do something with unwrapped subview and volume
+}
+```
+
+**不推荐**
+
+```swift
+var optionalSubview: UIView?
+var volume: Double?
+
+if let unwrappedSubview = optionalSubview {
+    if let realVolume = volume {
+        // do something with unwrappedSubview and realVolume
+    }
+}
+```
 
 
 
